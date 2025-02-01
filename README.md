@@ -1,4 +1,26 @@
-# mlex_utils
+# Utils for MLExchange Platform
+
+**mlex_utils** is a utility package designed to support the MLExchange platform by providing convenient tools and extensions for Dash Plotly and Prefect. Currently, this package focuses on facilitating job launches and monitoring workflows with Prefect, making it easier to manage and track your machine learning tasks. As the platform evolves, mlex_utils will continue to expand, incorporating additional utilities to enhance the MLExchange experience and streamline data workflows.
+
+## Features
+- Utilities for integrating Dash Plotly components to orchestrate ML jobs using Dash Bootstrap Components and Dash Mantime Components
+- Prefect job management tools for launching, scheduling, and monitoring ML jobs.
+
+## Installation
+
+To install `mlex_utils`, you can create a new Python environment and install all the dependencies:
+
+```
+conda create -n new_env python==3.11
+conda activate new_env
+pip install .
+```
+
+Alternatively, you can choose to install a set of utils according to your use case. For example, to install the Prefect-related dependencies and utils:
+
+```
+pip install ".[prefect]"
+```
 
 ## Copyright
 MLExchange Copyright (c) 2024, The Regents of the University of California,
