@@ -1,3 +1,5 @@
+import logging
+
 from dash import html, no_update
 
 from mlex_utils.prefect_utils.core import (
@@ -16,11 +18,18 @@ DEV_JOBS = [
 ]
 
 
+logger = logging.getLogger(__name__)
+
+
 def _check_job(prefect_tags, mode):
     if mode == "dev":
         data = DEV_JOBS
     else:
-        data = query_flow_runs(tags=prefect_tags)
+        try:
+            data = query_flow_runs(tags=prefect_tags)
+        except Exception as e:
+            logger.warning(f"Failed to query flow runs: {e}")
+            data = []
     return data
 
 
