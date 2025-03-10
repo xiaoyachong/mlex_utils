@@ -231,14 +231,24 @@ class DbcJobManagerAIO(html.Div):
                                     dbc.Button(
                                         DashIconify(
                                             icon="mdi:settings",
-                                            style={"padding": "0px"},
+                                            width=20,
+                                            style={"display": "block"},
                                         ),
                                         id=self.ids.advanced_options_modal_train(
                                             aio_id
                                         ),
                                         color="secondary",
-                                        style={"height": "36px", "line-height": "1"},
+                                        size="sm",
+                                        className="rounded-circle",
+                                        style={
+                                            "aspectRatio": "1 / 1",
+                                            "paddingLeft": "3px",
+                                            "paddingRight": "3px",
+                                            "paddingTop": "3px",
+                                            "paddingBottom": "3px",
+                                        },
                                     ),
+                                    className="d-flex justify-content-center align-items-center",
                                     width=2,
                                 ),
                             ],
@@ -277,14 +287,27 @@ class DbcJobManagerAIO(html.Div):
                                 ),
                                 dbc.Col(
                                     dbc.Button(
-                                        DashIconify(icon="mdi:settings"),
+                                        DashIconify(
+                                            icon="mdi:settings",
+                                            width=20,
+                                            style={"display": "block"},
+                                        ),
                                         id=self.ids.advanced_options_modal_inference(
                                             aio_id
                                         ),
                                         color="secondary",
-                                        style={"height": "36px", "line-height": "1"},
+                                        size="sm",
+                                        className="rounded-circle",
+                                        style={
+                                            "aspectRatio": "1 / 1",
+                                            "paddingLeft": "3px",
+                                            "paddingRight": "3px",
+                                            "paddingTop": "3px",
+                                            "paddingBottom": "3px",
+                                        },
                                     ),
-                                    width=1,
+                                    className="d-flex justify-content-center align-items-center",
+                                    width=2,
                                 ),
                             ],
                             className="g-1",
