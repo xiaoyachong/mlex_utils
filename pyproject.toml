@@ -21,7 +21,7 @@ dependencies = []
 
 [project.optional-dependencies]
 all = [
-    "prefect==2.14.21",
+    "prefect==3.4.2",
     "dash==2.9.3",
     "dash-bootstrap-components==1.6.0",
     "dash-mantine-components==0.12.1",
@@ -32,7 +32,7 @@ all = [
 ]
 
 prefect = [
-    "prefect==2.14.21",
+    "prefect==3.4.2",
     "griffe >= 0.49.0, <1.0.0",
 ]
 
