@@ -30,7 +30,7 @@ def child_flow2():
 
 @flow(name="Parent Flow")
 def parent_flow(model_name):
-    parent_flow_run_id = str(context.get_run_context().flow_run.id)
+    parent_flow_run_id = context.get_run_context().flow_run.id
     child_flow1()
     child_flow2()
     return parent_flow_run_id
@@ -68,7 +68,7 @@ def test_monitor_prefect_flow_runs():
     with prefect_test_harness():
         # Run flow
         flow_run_id = run_flow()
-        assert isinstance(flow_run_id, str)
+        assert isinstance(flow_run_id, uuid.UUID)
 
         # Get flow runs by name
         flow_runs = query_flow_runs()
@@ -87,7 +87,7 @@ def test_delete_prefect_flow_runs():
     with prefect_test_harness():
         # Run flow
         flow_run_id = run_flow()
-        assert isinstance(flow_run_id, str)
+        assert isinstance(flow_run_id, uuid.UUID)
 
         # Get flow runs by name
         flow_runs = query_flow_runs()
@@ -135,12 +135,11 @@ def test_get_flow_run_logs():
     with prefect_test_harness():
         # Run flow
         flow_run_id = run_flow()
-        assert isinstance(flow_run_id, str)
+        assert isinstance(flow_run_id, uuid.UUID)
 
         # Get flow run logs
         flow_run_logs = get_flow_run_logs(flow_run_id)
         print(f"Parent flow finished with flow_run_logs: {flow_run_logs}")
-        # assert len(flow_run_logs) > 0
         assert isinstance(flow_run_logs, list)
 
 
@@ -148,7 +147,7 @@ def test_get_flow_run_parameters():
     with prefect_test_harness():
         # Run flow
         flow_run_id = run_flow()
-        assert isinstance(flow_run_id, str)
+        assert isinstance(flow_run_id, uuid.UUID)
 
         # Get flow run logs
         flow_run_parameters = get_flow_run_parameters(flow_run_id)
