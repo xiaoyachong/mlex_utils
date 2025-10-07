@@ -10,7 +10,7 @@ from prefect.client.schemas.filters import (
     LogFilter,
     LogFilterFlowRunId,
 )
-from prefect.client.schemas.objects import State, StateType, DeploymentStatus
+from prefect.client.schemas.objects import DeploymentStatus, State, StateType
 from prefect.client.schemas.sorting import LogSort
 
 
