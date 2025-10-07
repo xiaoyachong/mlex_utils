@@ -177,7 +177,7 @@ def test_check_prefect_worker_ready():
             tags=["Test tag"],
         )
         deployment.apply()
-        
+
         # This tests the function exists and can be called
         try:
             check_prefect_worker_ready("Parent Flow/test_deployment")
@@ -189,10 +189,10 @@ def test_get_flow_run_parent_id():
     with prefect_test_harness():
         # Run parent flow with children
         parent_id = run_flow()
-        
+
         # Get children flow runs
         children_ids = get_children_flow_run_ids(parent_id)
-        
+
         if children_ids:
             # Test getting parent ID from child
             retrieved_parent_id = get_flow_run_parent_id(children_ids[0])
