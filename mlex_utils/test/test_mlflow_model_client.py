@@ -6,8 +6,12 @@ from unittest.mock import MagicMock, call, patch
 import mlflow
 import pytest
 
-from mlex_utils.test.test_utils import mlflow_test_model_client, mock_mlflow_model_client, mock_os_makedirs
 from mlex_utils.mlflow_utils.mlflow_model_client import MLflowModelClient
+from mlex_utils.test.test_utils import (
+    mlflow_test_model_client,
+    mock_mlflow_model_client,
+    mock_os_makedirs,
+)
 
 
 class TestMLflowModelClient:
@@ -37,7 +41,9 @@ class TestMLflowModelClient:
         # Note: mock_os_makedirs is called twice - once for client init, once in fixture
         assert mock_os_makedirs.called
 
-    def test_check_mlflow_ready_success(self, mlflow_test_model_client, mock_mlflow_model_client):
+    def test_check_mlflow_ready_success(
+        self, mlflow_test_model_client, mock_mlflow_model_client
+    ):
         """Test check_mlflow_ready when MLflow is reachable"""
         client = mlflow_test_model_client
         # Configure the mock to return a result
@@ -48,9 +54,13 @@ class TestMLflowModelClient:
 
         # Verify the result is True
         assert result is True
-        mock_mlflow_model_client.search_experiments.assert_called_once_with(max_results=1)
+        mock_mlflow_model_client.search_experiments.assert_called_once_with(
+            max_results=1
+        )
 
-    def test_check_mlflow_ready_failure(self, mlflow_test_model_client, mock_mlflow_model_client):
+    def test_check_mlflow_ready_failure(
+        self, mlflow_test_model_client, mock_mlflow_model_client
+    ):
         """Test check_mlflow_ready when MLflow is not reachable"""
         client = mlflow_test_model_client
         # Configure the mock to raise an exception
@@ -63,9 +73,13 @@ class TestMLflowModelClient:
 
         # Verify the result is False
         assert result is False
-        mock_mlflow_model_client.search_experiments.assert_called_once_with(max_results=1)
+        mock_mlflow_model_client.search_experiments.assert_called_once_with(
+            max_results=1
+        )
 
-    def test_get_mlflow_params(self, mlflow_test_model_client, mock_mlflow_model_client):
+    def test_get_mlflow_params(
+        self, mlflow_test_model_client, mock_mlflow_model_client
+    ):
         """Test retrieving MLflow model parameters"""
         client = mlflow_test_model_client
         # Configure mock for get_model_version
@@ -91,7 +105,9 @@ class TestMLflowModelClient:
         # Verify the result contains the expected parameters
         assert result == {"param1": "value1", "param2": "value2"}
 
-    def test_get_mlflow_models(self, mlflow_test_model_client, mock_mlflow_model_client):
+    def test_get_mlflow_models(
+        self, mlflow_test_model_client, mock_mlflow_model_client
+    ):
         """Test retrieving MLflow models"""
         client = mlflow_test_model_client
         # Create mock model versions
@@ -124,7 +140,8 @@ class TestMLflowModelClient:
         # Mock the get_flow_run_name and get_flow_run_parent_id functions
         with (
             patch(
-                "mlex_utils.mlflow_utils.mlflow_model_client.get_flow_run_name", return_value="Flow Run 1"
+                "mlex_utils.mlflow_utils.mlflow_model_client.get_flow_run_name",
+                return_value="Flow Run 1",
             ),
             patch(
                 "mlex_utils.mlflow_utils.mlflow_model_client.get_flow_run_parent_id",
@@ -225,7 +242,8 @@ class TestMLflowModelClient:
                 return_value="parent-id",
             ),
             patch(
-                "mlex_utils.mlflow_utils.mlflow_model_client.get_flow_run_name", return_value="Flow Run 1"
+                "mlex_utils.mlflow_utils.mlflow_model_client.get_flow_run_name",
+                return_value="Flow Run 1",
             ),
         ):
 
@@ -261,7 +279,9 @@ class TestMLflowModelClient:
         # Verify result is from cache
         assert result is mock_model
 
-    def test_load_model_from_disk_cache(self, mlflow_test_model_client, mock_mlflow_model_client):
+    def test_load_model_from_disk_cache(
+        self, mlflow_test_model_client, mock_mlflow_model_client
+    ):
         """Test loading a model from disk cache"""
         client = mlflow_test_model_client
         # Setup mocks

@@ -52,7 +52,9 @@ def mlflow_test_model_client(mock_mlflow_model_client, mock_os_makedirs):
 def mlflow_test_algorithm_client(mock_mlflow_algorithm_client, mock_os_makedirs):
     """Create a MlflowAlgorithmClient instance with mocked dependencies"""
     with patch("mlflow.set_tracking_uri"):  # Avoid actually setting tracking URI
-        from mlex_utils.mlflow_utils.mlflow_algorithm_client import MlflowAlgorithmClient
+        from mlex_utils.mlflow_utils.mlflow_algorithm_client import (
+            MlflowAlgorithmClient,
+        )
 
         client = MlflowAlgorithmClient(
             tracking_uri="http://mock-mlflow:5000",
