@@ -154,6 +154,10 @@ class MLflowModelClient:
                     run = self.client.get_run(v.run_id)
                     run_tags = run.data.tags
 
+                    # Skip models that are algorithm definitions
+                    if run_tags.get("entity_type") == "algorithm_definition":
+                        continue
+
                     # Tag-based filtering
                     exp_type = run_tags.get("exp_type")
                     if livemode:
