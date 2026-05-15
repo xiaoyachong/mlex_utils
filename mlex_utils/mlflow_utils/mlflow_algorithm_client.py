@@ -106,28 +106,18 @@ class MlflowAlgorithmClient:
 
                 version = versions[0]
 
-                # Get run to access artifacts
                 try:
-                    run = self.client.get_run(version.run_id)
-
-                    # Download algorithm config to versioned cache path
+                    # Download all artifacts for this run directly into the versioned
+                    # cache path, same pattern as MLflowModelClient.load_model
                     download_path = self._get_cache_path(model.name, version.version)
-                    os.makedirs(download_path, exist_ok=True)
-                    artifact_path = os.path.join(download_path, "algorithm_config.json")
-
-                    self.client.download_artifacts(
-                        run.info.run_id, "algorithm_config.json", download_path
+                    mlflow.artifacts.download_artifacts(
+                        artifact_uri=f"runs:/{version.run_id}/",
+                        dst_path=download_path,
                     )
+
+                    artifact_path = os.path.join(download_path, "algorithm_config.json")
                     with open(artifact_path, "r") as f:
                         algorithm_config = json.load(f)
-
-                    # Download logo artifact from the same run as algorithm_config.json
-                    try:
-                        self.client.download_artifacts(
-                            run.info.run_id, "logo", download_path
-                        )
-                    except Exception as e:
-                        logger.warning(f"Could not download logo for {model.name}: {e}")
 
                     # Add to algorithms dict
                     self.algorithm_names.append(model.name)
@@ -172,13 +162,14 @@ class MlflowAlgorithmClient:
             logger.warning(f"Could not load logo for {model_name}: {e}")
             return None
 
-    def register_algorithm(self, algorithm_config, overwrite=False):
+    def register_algorithm(self, algorithm_config, overwrite=False, logo_path=None):
         """
         Register an algorithm definition in MLflow with minimal parameters
 
         Args:
             algorithm_config (dict): Algorithm configuration with GUI parameters
             overwrite (bool): Whether to overwrite if algorithm already exists
+            logo_path (str): Optional path to a logo PNG to log alongside the config
 
         Returns:
             dict: Registration result with model name and version
@@ -250,16 +241,11 @@ class MlflowAlgorithmClient:
             # Log description
             mlflow.log_param("description", algorithm_config.get("description", ""))
 
-            # Save complete algorithm config for reference
-            temp_dir = os.path.join(self.cache_dir, "artifacts")
-            os.makedirs(temp_dir, exist_ok=True)
-            temp_file = os.path.join(temp_dir, "algorithm_config.json")
-            with open(temp_file, "w") as f:
-                json.dump(algorithm_config, f, indent=2)
-            mlflow.log_artifact(temp_file)
+            # Log algorithm_config.json using mlflow.log_dict so no local file needed
+            mlflow.log_dict(algorithm_config, "algorithm_config.json")
 
-            # Log logo if logo_path is provided alongside algorithm_config.json
-            logo_path = algorithm_config.get("logo_path")
+            # Log logo if logo_path is provided — kept separate from algorithm_config
+            # so models.json is never mutated and logo_path never appears in the stored config
             if logo_path and os.path.exists(logo_path):
                 mlflow.log_artifact(logo_path, artifact_path="logo")
                 logger.info(f"Logged logo for {model_name} from {logo_path}")
@@ -285,9 +271,6 @@ class MlflowAlgorithmClient:
                     "entity_type",
                     "algorithm_definition",
                 )
-
-                # Reload algorithms to include the newly registered one
-                self.load_from_mlflow(algorithm_type)
 
                 return {
                     "status": "success",
