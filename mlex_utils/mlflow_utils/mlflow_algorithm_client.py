@@ -1,3 +1,5 @@
+import base64
+import glob
 import json
 import logging
 import os
@@ -60,6 +62,14 @@ class MlflowAlgorithmClient:
         # Create client
         self.client = MlflowClient()
 
+    def _get_cache_path(self, model_name, version):
+        """
+        Get the cache path for an algorithm, following the same convention as
+        MLflowModelClient: <cache_dir>/<model_name>_v<version>
+        """
+        safe_name = model_name.replace("/", "_")
+        return os.path.join(self.cache_dir, f"{safe_name}_v{version}")
+
     def load_from_mlflow(self, algorithm_type=None):
         """
         Load algorithm definitions from MLflow
@@ -100,8 +110,8 @@ class MlflowAlgorithmClient:
                 try:
                     run = self.client.get_run(version.run_id)
 
-                    # Download the config artifact
-                    download_path = os.path.join(self.cache_dir, model.name)
+                    # Download algorithm config to versioned cache path
+                    download_path = self._get_cache_path(model.name, version.version)
                     os.makedirs(download_path, exist_ok=True)
                     artifact_path = os.path.join(download_path, "algorithm_config.json")
 
@@ -110,6 +120,14 @@ class MlflowAlgorithmClient:
                     )
                     with open(artifact_path, "r") as f:
                         algorithm_config = json.load(f)
+
+                    # Download logo artifact from the same run as algorithm_config.json
+                    try:
+                        self.client.download_artifacts(
+                            run.info.run_id, "logo", download_path
+                        )
+                    except Exception as e:
+                        logger.warning(f"Could not download logo for {model.name}: {e}")
 
                     # Add to algorithms dict
                     self.algorithm_names.append(model.name)
@@ -126,6 +144,33 @@ class MlflowAlgorithmClient:
         except Exception as e:
             logger.warning(f"Failed to load algorithms from MLflow: {e}")
             return False
+
+    def get_logo_data_uri(self, model_name: str) -> str | None:
+        """
+        Return the logo for a registered model as a base64 data URI, or None if unavailable.
+        Logo is read from the local cache populated during load_from_mlflow.
+        Cache path follows the same convention as MLflowModelClient: <name>_v<version>.
+
+        Args:
+            model_name: Name of the registered model
+
+        Returns:
+            str: Base64 encoded data URI of the logo, or None if unavailable
+        """
+        try:
+            versions = self.client.get_latest_versions(model_name)
+            if not versions:
+                return None
+            cache_path = self._get_cache_path(model_name, versions[0].version)
+            pngs = glob.glob(os.path.join(cache_path, "logo", "*.png"))
+            if not pngs:
+                return None
+            with open(pngs[0], "rb") as f:
+                data = base64.b64encode(f.read()).decode("utf-8")
+            return f"data:image/png;base64,{data}"
+        except Exception as e:
+            logger.warning(f"Could not load logo for {model_name}: {e}")
+            return None
 
     def register_algorithm(self, algorithm_config, overwrite=False):
         """
@@ -212,6 +257,12 @@ class MlflowAlgorithmClient:
             with open(temp_file, "w") as f:
                 json.dump(algorithm_config, f, indent=2)
             mlflow.log_artifact(temp_file)
+
+            # Log logo if logo_path is provided alongside algorithm_config.json
+            logo_path = algorithm_config.get("logo_path")
+            if logo_path and os.path.exists(logo_path):
+                mlflow.log_artifact(logo_path, artifact_path="logo")
+                logger.info(f"Logged logo for {model_name} from {logo_path}")
 
             # Register the algorithm in the model registry
             try:
